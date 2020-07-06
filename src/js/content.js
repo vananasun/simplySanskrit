@@ -1,8 +1,11 @@
-let Translator = require('translator.js');
+let Phonetics = require('phonetics.js');
+let Dictionary = require('dictionary.js');
 let Popup = require('popup.js');
+
 g_devanagari = {
     'enabled': false,
-    'translator': new Translator(),
+    'phonetics': new Phonetics(),
+    'dictionary': new Dictionary(),
     'popup': new Popup(),
 };
 g_devanagari.translateSelection = function() {
@@ -17,7 +20,6 @@ g_devanagari.translateSelection = function() {
     // Show popup
     g_devanagari.popup.show(text, selection.getRangeAt(0).getBoundingClientRect());
 }
-window.g_devanagari = g_devanagari;
 
 
 

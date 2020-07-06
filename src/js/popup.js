@@ -1,3 +1,6 @@
+
+
+
 Popup = function() {
 
 
@@ -35,18 +38,28 @@ Popup = function() {
         'transition': 'all 0.2s ease-in-out',
         'opacity': '0'
     });
-    let $span = $('<span>');
+
+    // Phonetics span
+    let $span = $('<span id="phonetics">');
     $span.css({
         'line-height': '18px',
         'vertical-align': 'top',
-    })
+    });
     $span.appendTo(this.$popup);
+
+    // Translation span (dictionary lookup)
+    let $spanTranslation = $('<span id="translation">');
+    $spanTranslation.css({
+        'line-height': '18px',
+        'vertical-align': 'top'
+    });
+    $spanTranslation.appendTo(this.$popup);
 
 
     // Create speaker icon
     let $speaker = $('<img id="__easy-devanagari-speak__" src="'+chrome.runtime.getURL('speaker.png')+'">');
     $speaker.css({
-        'padding': '3px 0px 0px 6px',
+        'padding': '3px 0px 0px 1px',
         'width': 'auto',
         'height': '14px',
     });
@@ -96,7 +109,7 @@ Popup = function() {
  */
 Popup.prototype.show = function(text, rect) {
 
-    // Create popup
+    // position and display popup
     let width = this.$popup.width() + 18 + 3;
     this.$popup.css({
         'top': this.getTop(rect)+'px',
@@ -104,9 +117,16 @@ Popup.prototype.show = function(text, rect) {
 
         // anim
         'opacity': '1',
+        'pointer-events': 'all',
     });
 
-    $('#__easy-devanagari__>span').html(g_devanagari.translator.devanagariToLatin(text));
+    // phonetics
+    let latin = g_devanagari.phonetics.devanagariToLatin(text);
+    $('#__easy-devanagari__>span#phonetics').html(latin);
+
+    // dictionary lookup
+    let translation = g_devanagari.dictionary.lookupSanskrit(latin);
+    $('#__easy-devanagari__>span#translation').html(translation);
 
 };
 
@@ -114,7 +134,7 @@ Popup.prototype.show = function(text, rect) {
  * Hide popup.
  */
 Popup.prototype.destroy = function() {
-    this.$popup.css({'opacity': '0'});
+    this.$popup.css({'opacity': '0', 'pointer-events': 'none'});
 }
 
 /**
@@ -135,7 +155,7 @@ Popup.prototype.getTop = function(rect) { return (rect.y + 4 + rect.height); }
  * Say the selected text.
  */
 Popup.prototype.pronounce = function() {
-    let text = $('#__easy-devanagari__>span').text();
+    let text = $('#__easy-devanagari__>span#phonetics').text();
     let msg = new SpeechSynthesisUtterance(text);
     msg.lang = 'hi-IN';
     window.speechSynthesis.speak(msg);
@@ -145,7 +165,7 @@ Popup.prototype.pronounce = function() {
  * Copy selected text to clipboard.
  */
 Popup.prototype.copyTextToClipboard = function() {
-    let text = $('#__easy-devanagari__>span').text();
+    let text = $('#__easy-devanagari__>span#phonetics').text();
     navigator.clipboard.writeText(text).then(function() {}, function(err) {});
 }
 

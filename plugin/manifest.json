@@ -2,7 +2,7 @@
   "name": "Easy Devanagari",
   "version": "1.0.0",
   "manifest_version": 2,
-  "description": "Provides latin text on Devanagari text.",
+  "description": "Pronounce Devanagari text and show phonetics.",
   "permissions": [ "contextMenus" ],
   "icons": {
     "128": "icon128.png"
@@ -18,7 +18,7 @@
   "content_scripts": [
     {
       "matches": [ "<all_urls>" ],
-      "js": [ "build/js/third-party/jquery-3.5.1.slim.min.js", "build/js/content.js" ]
+      "js": [ "build/js/third-party/jquery-3.5.1.min.js", "build/js/content.js" ]
     }
   ],
 

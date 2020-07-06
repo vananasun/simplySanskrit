@@ -1,6 +1,7 @@
 M   Changable hotkey in options page
 
 C   Logo show when enabled
+C   Jquery SLIM version!!!
 
 
 BUGS:

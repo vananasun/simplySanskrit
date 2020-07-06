@@ -22,3 +22,22 @@ chrome.commands.onCommand.addListener(function(command) {
     return Promise.resolve('');
 
 });
+
+// Dictionary lookup handler
+chrome.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+        if (request.action !== "lookupSanskrit") return;
+
+        let word = request.word.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        let url = "https://sanskritdictionary.org/" + encodeURIComponent(word);
+        fetch(url)
+            .then(r => { return r.text() })
+            .then(d => {
+                // console.log('response', d)
+                sendResponse(d);
+            })
+            .catch(error => {/*console.warn(error)*/});
+
+        return true; // will respond asynchronously
+    }
+);
