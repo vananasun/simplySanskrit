@@ -24,7 +24,7 @@ Dictionary.prototype.lookupSanskrit = function(word) {
             }
 
             // Extract definitions
-            const amountShown = 5;
+            const amountShown = 15;
 
             let html = '';
             let matches = response.match(/(?<=\<\/strong>\&mdash;)(.*?)  \&/g);
