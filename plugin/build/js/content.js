@@ -10,16 +10,26 @@ g_devanagari = {
     'popup': new Popup(),
 };
 g_devanagari.translateSelection = function() {
-    // Check if has selection and get bounding rectangle
+
+    // Make sure we didn't select the phonetics inside the popup
     let selection = document.getSelection();
+    if (selection.rangeCount > 0 &&
+        selection.getRangeAt(0).startContainer.parentNode.id === '__easy-devanagari-phonetics__') {
+        g_devanagari.dictionary.displayDefinitions(selection.toString());
+        return;
+    }
+
+    // Check if has selection and get bounding rectangle,
+    // and make sure the selection wasn't too big
     let text = selection.toString();
-    if (!text.length) {
+    if (selection.rangeCount <= 0 || !text.length || text.length > 500) {
         g_devanagari.popup.destroy();
         return;
     }
 
     // Show popup
     g_devanagari.popup.show(text, selection.getRangeAt(0).getBoundingClientRect());
+
 }
 
 
@@ -56,65 +66,72 @@ document.addEventListener('scroll', () => {
 Dictionary = function() {
 
 }
+Dictionary.AMOUNT_SHOWN = 15;
+
 
 /**
- * @param {string} word`
+ * Make sure that the index or error pages weren't given.
+ *
+ * @param {string} page - Page's HTML content.
+ *
+ * @return {boolean}
  */
-Dictionary.prototype.lookupSanskrit = function(word) {
+Dictionary.prototype.isValidPage = function(page) {
+    return (!(page.includes("Error: Can't find")
+            ||page.includes("1\n<h1>Sanskrit ")));
+}
+
+/**
+ * Request and process definitions for a given Sanskrit word.
+ *
+ * @param {string} word
+ */
+Dictionary.prototype.displayDefinitions = function(word) {
+
+    this.setSpanText('...');
 
     chrome.runtime.sendMessage(
         { action: 'lookupSanskrit', 'word': word },
         function(response) {
 
             // Check whether it's the index page or the error page.
-            // @TODO: check index page
-            if (response.includes("Error: Can't find")
-            ||  response.includes("Sanskrit Words Starting With")) {
-                $('#__easy-devanagari__>span#translation').html(
-                    '<br><i>'+
-                    '(No definitions found)'+
-                    '</i>'
-                );
+            if (!this.isValidPage(response)) {
+                this.setSpanText('(No definitions found)');
                 return;
             }
 
-            // Extract definitions
-            const amountShown = 15;
-
-            let html = '';
-            let matches = response.match(/(?<=\<\/strong>\&mdash;)(.*?)  \&/g);
-            let definitions = matches;
-            for (let i = 0; i < Math.min(amountShown, definitions.length); i++) {
-                definitions[i] = definitions[i].substring(0, definitions[i].length - 3);
+            // Show definitions
+            let html = '', definitions = this.extractDefinitions(response);
+            for (let i = 0; i < Math.min(Dictionary.AMOUNT_SHOWN, definitions.length); i++)
                 html += definitions[i] + '<br>';
-            }
+            this.setSpanText(html);
 
-            // List definitions in popup
-            $('#__easy-devanagari__>span#translation').html(
-                '<br><i>'+
-                html+
-                '</i>'
-            );
-
-        }
+        }.bind(this)
     )
 
 
-    // $.ajax({
-    //     url: "https://sanskritdictionary.org/" + word,
-    //     type: 'GET',
-    //     success: function(data) {
-    //         console.log(data);
-    //     },
-    // });
+}
 
+/**
+ * Extract definitions from page contents.
+ *
+ * @param {string} page
+ *
+ * @return {string[]}
+ */
+Dictionary.prototype.extractDefinitions = function(page) {
+    return page.match(/(?<=\<\/strong>\&mdash;)(.*?(?=  \&))/g);
+}
 
-   // success: function(data){
-   //     $('#content').html($(data).find('#content').html());
-   // }
-   //
-   //
-
+/**
+ * Write the HTML contents of the definitions span.
+ *
+ * @param {string} html
+ */
+Dictionary.prototype.setSpanText = function(html) {
+    $('#__easy-devanagari__>span#__easy-devanagari-translation__').html(
+        '<br><i>' + html + '</i>'
+    );
 }
 
 module.exports = Dictionary;
@@ -241,6 +258,7 @@ module.exports = Phonetics;
 
 Popup = function() {
 
+    this.shown = false;
 
     this.$popup = $('<div>');
     this.$popup.prop('id', '__easy-devanagari__');
@@ -258,19 +276,16 @@ Popup = function() {
         '-khtml-user-select': 'none',
         '-webkit-user-select': 'none',
         '-o-user-select': 'none',
-        // 'pointer-events': 'none',
 
         // styling
-        'border': '5px solid #fff3',
         'border-radius': '4px',
-        'background-color': '#0008',
+        'background-color': 'rgba(0, 0, 0, 0.63)',
         'color': '#fff',
-        '-webkit-text-stroke': '1.1px #0003',
         'font-size': '18px',
         'font-weight': 'bold',
         'font-family': '"Palatino Linotype", "Book Antiqua", Palatino, serif',
-        'padding': '2px 6px',
-        'line-height': '18px',
+        'padding': '6px 10px 8px',
+        'line-height': '22px',
 
         // anim
         'transition': 'all 0.2s ease-in-out',
@@ -278,18 +293,20 @@ Popup = function() {
     });
 
     // Phonetics span
-    let $span = $('<span id="phonetics">');
+    let $span = $('<span id="__easy-devanagari-phonetics__">');
     $span.css({
-        'line-height': '18px',
-        'vertical-align': 'top',
+        'user-select': 'text',
+        '-moz-user-select': 'text',
+        '-khtml-user-select': 'text',
+        '-webkit-user-select': 'text',
+        '-o-user-select': 'text',
     });
     $span.appendTo(this.$popup);
 
     // Translation span (dictionary lookup)
-    let $spanTranslation = $('<span id="translation">');
+    let $spanTranslation = $('<span id="__easy-devanagari-translation__">');
     $spanTranslation.css({
-        'line-height': '18px',
-        'vertical-align': 'top'
+        'padding-right': '6px'
     });
     $spanTranslation.appendTo(this.$popup);
 
@@ -297,9 +314,10 @@ Popup = function() {
     // Create speaker icon
     let $speaker = $('<img id="__easy-devanagari-speak__" src="'+chrome.runtime.getURL('speaker.png')+'">');
     $speaker.css({
-        'padding': '3px 0px 0px 1px',
+        'padding': '0 0 0 1px',
         'width': 'auto',
         'height': '14px',
+        'vertical-align': 'middle'
     });
     // hover animations
     $speaker.mouseenter(function() {
@@ -313,9 +331,10 @@ Popup = function() {
     // Create clipboard icon
     let $clipboard = $('<img id="__easy-devanagari-copy__" src="'+chrome.runtime.getURL('clipboard.png')+'">');
     $clipboard.css({
-        'padding': '3px 0px 0px 6px',
+        'padding': '0 0 0 6px',
         'width': 'auto',
         'height': '15px',
+        'vertical-align': 'middle'
     });
     // hover animations
     $clipboard.mouseenter(function() {
@@ -357,14 +376,15 @@ Popup.prototype.show = function(text, rect) {
         'opacity': '1',
         'pointer-events': 'all',
     });
+    this.shown = true;
 
     // phonetics
     let latin = g_devanagari.phonetics.devanagariToLatin(text);
-    $('#__easy-devanagari__>span#phonetics').html(latin);
+    $('#__easy-devanagari__>span#__easy-devanagari-phonetics__').html(latin);
 
     // dictionary lookup
-    let translation = g_devanagari.dictionary.lookupSanskrit(latin);
-    $('#__easy-devanagari__>span#translation').html(translation);
+    g_devanagari.dictionary.displayDefinitions(latin);
+
 
 };
 
@@ -373,16 +393,17 @@ Popup.prototype.show = function(text, rect) {
  */
 Popup.prototype.destroy = function() {
     this.$popup.css({'opacity': '0', 'pointer-events': 'none'});
+    this.shown = false;
 }
 
 /**
  * Update position when scrolling.
  */
 Popup.prototype.updatePosition = function() {
-    if (!document.getSelection().focusNode) return;
+    if (!this.shown) return;
     let rect = document.getSelection().getRangeAt(0).getBoundingClientRect();
     this.$popup.css({
-        'top': this.getTop(rect)+'px'
+        'top': this.getTop(rect) + 'px'
     });
 }
 
@@ -393,9 +414,12 @@ Popup.prototype.getTop = function(rect) { return (rect.y + 4 + rect.height); }
  * Say the selected text.
  */
 Popup.prototype.pronounce = function() {
-    let text = $('#__easy-devanagari__>span#phonetics').text();
+    if (window.speechSynthesis.speaking) return;
+
+    let text = $('#__easy-devanagari__>span#__easy-devanagari-phonetics__').text();
     let msg = new SpeechSynthesisUtterance(text);
     msg.lang = 'hi-IN';
+    msg.rate = 0.8;
     window.speechSynthesis.speak(msg);
 }
 
@@ -403,7 +427,7 @@ Popup.prototype.pronounce = function() {
  * Copy selected text to clipboard.
  */
 Popup.prototype.copyTextToClipboard = function() {
-    let text = $('#__easy-devanagari__>span#phonetics').text();
+    let text = $('#__easy-devanagari__>span#__easy-devanagari-phonetics__').text();
     navigator.clipboard.writeText(text).then(function() {}, function(err) {});
 }
 

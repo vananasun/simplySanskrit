@@ -9,16 +9,26 @@ g_devanagari = {
     'popup': new Popup(),
 };
 g_devanagari.translateSelection = function() {
-    // Check if has selection and get bounding rectangle
+
+    // Make sure we didn't select the phonetics inside the popup
     let selection = document.getSelection();
+    if (selection.rangeCount > 0 &&
+        selection.getRangeAt(0).startContainer.parentNode.id === '__easy-devanagari-phonetics__') {
+        g_devanagari.dictionary.displayDefinitions(selection.toString());
+        return;
+    }
+
+    // Check if has selection and get bounding rectangle,
+    // and make sure the selection wasn't too big
     let text = selection.toString();
-    if (!text.length) {
+    if (selection.rangeCount <= 0 || !text.length || text.length > 500) {
         g_devanagari.popup.destroy();
         return;
     }
 
     // Show popup
     g_devanagari.popup.show(text, selection.getRangeAt(0).getBoundingClientRect());
+
 }
 
 

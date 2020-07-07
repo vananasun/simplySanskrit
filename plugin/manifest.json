@@ -1,8 +1,8 @@
 {
-  "name": "Easy Devanagari",
+  "name": "easySanskrit",
   "version": "1.0.0",
   "manifest_version": 2,
-  "description": "Pronounce Devanagari text and show phonetics.",
+  "description": "Pronounce and translate Sanskrit text.",
   "permissions": [ "contextMenus" ],
   "icons": {
     "128": "icon128.png"
@@ -10,7 +10,6 @@
   "web_accessible_resources": ["speaker.png", "clipboard.png"],
 
 
-  "options_page": "build/options.html",
   "background": {
     "scripts": [ "build/js/plugin.js" ],
     "persistent": false
@@ -18,14 +17,14 @@
   "content_scripts": [
     {
       "matches": [ "<all_urls>" ],
-      "js": [ "build/js/third-party/jquery-3.5.1.min.js", "build/js/content.js" ]
+      "js": [ "build/js/third-party/jquery-3.5.1.slim.min.js", "build/js/content.js" ]
     }
   ],
 
   "commands": {
     "toggle-show-latin": {
       "suggested_key": { "default": "Alt+R" },
-      "description": "Toggle show Latin phonetics when hovering over Devanagari words."
+      "description": "Toggle the Dictionary popup when selecting text."
     }
   }
 

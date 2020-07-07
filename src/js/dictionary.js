@@ -1,65 +1,72 @@
 Dictionary = function() {
 
 }
+Dictionary.AMOUNT_SHOWN = 15;
+
 
 /**
- * @param {string} word`
+ * Make sure that the index or error pages weren't given.
+ *
+ * @param {string} page - Page's HTML content.
+ *
+ * @return {boolean}
  */
-Dictionary.prototype.lookupSanskrit = function(word) {
+Dictionary.prototype.isValidPage = function(page) {
+    return (!(page.includes("Error: Can't find")
+            ||page.includes("1\n<h1>Sanskrit ")));
+}
+
+/**
+ * Request and process definitions for a given Sanskrit word.
+ *
+ * @param {string} word
+ */
+Dictionary.prototype.displayDefinitions = function(word) {
+
+    this.setSpanText('...');
 
     chrome.runtime.sendMessage(
         { action: 'lookupSanskrit', 'word': word },
         function(response) {
 
             // Check whether it's the index page or the error page.
-            // @TODO: check index page
-            if (response.includes("Error: Can't find")
-            ||  response.includes("Sanskrit Words Starting With")) {
-                $('#__easy-devanagari__>span#translation').html(
-                    '<br><i>'+
-                    '(No definitions found)'+
-                    '</i>'
-                );
+            if (!this.isValidPage(response)) {
+                this.setSpanText('(No definitions found)');
                 return;
             }
 
-            // Extract definitions
-            const amountShown = 15;
-
-            let html = '';
-            let matches = response.match(/(?<=\<\/strong>\&mdash;)(.*?)  \&/g);
-            let definitions = matches;
-            for (let i = 0; i < Math.min(amountShown, definitions.length); i++) {
-                definitions[i] = definitions[i].substring(0, definitions[i].length - 3);
+            // Show definitions
+            let html = '', definitions = this.extractDefinitions(response);
+            for (let i = 0; i < Math.min(Dictionary.AMOUNT_SHOWN, definitions.length); i++)
                 html += definitions[i] + '<br>';
-            }
+            this.setSpanText(html);
 
-            // List definitions in popup
-            $('#__easy-devanagari__>span#translation').html(
-                '<br><i>'+
-                html+
-                '</i>'
-            );
-
-        }
+        }.bind(this)
     )
 
 
-    // $.ajax({
-    //     url: "https://sanskritdictionary.org/" + word,
-    //     type: 'GET',
-    //     success: function(data) {
-    //         console.log(data);
-    //     },
-    // });
+}
 
+/**
+ * Extract definitions from page contents.
+ *
+ * @param {string} page
+ *
+ * @return {string[]}
+ */
+Dictionary.prototype.extractDefinitions = function(page) {
+    return page.match(/(?<=\<\/strong>\&mdash;)(.*?(?=  \&))/g);
+}
 
-   // success: function(data){
-   //     $('#content').html($(data).find('#content').html());
-   // }
-   //
-   //
-
+/**
+ * Write the HTML contents of the definitions span.
+ *
+ * @param {string} html
+ */
+Dictionary.prototype.setSpanText = function(html) {
+    $('#__easy-devanagari__>span#__easy-devanagari-translation__').html(
+        '<br><i>' + html + '</i>'
+    );
 }
 
 module.exports = Dictionary;

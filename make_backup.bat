@@ -1,5 +1,5 @@
 @echo off
-set "project=easyDevanagari"
+set "project=easySanskrit"
 
 
 set "backupfolder=..\.____Backups\%project%_backups\"

@@ -1,13 +1,6 @@
-M   Changable hotkey in options page
+S   Cut off whitespace and special characters at 2 sides when looking up definitions
 
+C   Changeable voice speed in options page
 C   Logo show when enabled
-C   Jquery SLIM version!!!
-
-
-BUGS:
-Mixed Content: The page at 'https://sanskritdocuments.org/doc_yoga/yogasuutra.html' was loaded over HTTPS, but requested an insecure font 'http://trans.mglip.com/css/LD-MONG150702-BT.ttf'. This request has been blocked; the content must be served over HTTPS.
-Context
-https://sanskritdocuments.org/doc_yoga/yogasuutra.html
-Stack-tracering
-build/js/content.js:177 (Popup.updatePosition)
-build/js/content.js:50 (anonieme functie)
+C   Optimize by hiding the popup when it's not shown (display: none)
+C   Be able to pronounce the selected phonetics, not only the devanagari selection.
