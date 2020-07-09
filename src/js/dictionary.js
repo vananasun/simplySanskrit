@@ -23,6 +23,10 @@ Dictionary.prototype.isValidPage = function(page) {
  */
 Dictionary.prototype.displayDefinitions = function(word) {
 
+    // trim whitespace
+    word = word.replace(/[\s\t]+/g, '').replace(/[\s\t]+$/g, '');
+
+
     this.setSpanText('...');
 
     chrome.runtime.sendMessage(
