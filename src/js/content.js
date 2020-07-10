@@ -1,20 +1,33 @@
+let MessageBus = require('message-bus.js');
 let Phonetics = require('phonetics.js');
 let Dictionary = require('dictionary.js');
 let Popup = require('popup.js');
 
-g_devanagari = {
-    'enabled': false,
+// check if we are running as plugin
+if ('undefined' === typeof noplugin) {
+    noplugin = false;
+    g_messageBus = new MessageBus(noplugin);
+}
+
+
+g_sanskrit = {
+    'enabled': noplugin,
     'phonetics': new Phonetics(),
     'dictionary': new Dictionary(),
     'popup': new Popup(),
 };
-g_devanagari.translateSelection = function() {
+
+
+
+
+
+g_sanskrit.translateSelection = function() {
 
     // Make sure we didn't select the phonetics inside the popup
     let selection = document.getSelection();
     if (selection.rangeCount > 0 &&
-        selection.getRangeAt(0).startContainer.parentNode.id === '__easy-devanagari-phonetics__') {
-        g_devanagari.dictionary.displayDefinitions(selection.toString());
+        selection.getRangeAt(0).startContainer.parentNode.id === '__simply-sanskrit-phonetics__') {
+        g_sanskrit.dictionary.displayDefinitions(selection.toString());
         return;
     }
 
@@ -22,12 +35,12 @@ g_devanagari.translateSelection = function() {
     // and make sure the selection wasn't too big
     let text = selection.toString();
     if (selection.rangeCount <= 0 || !text.length || text.length > 500) {
-        g_devanagari.popup.destroy();
+        g_sanskrit.popup.destroy();
         return;
     }
 
     // Show popup
-    g_devanagari.popup.show(text, selection.getRangeAt(0).getBoundingClientRect());
+    g_sanskrit.popup.show(text, selection.getRangeAt(0).getBoundingClientRect());
 
 }
 
@@ -35,14 +48,13 @@ g_devanagari.translateSelection = function() {
 
 
 
-chrome.runtime.onMessage.addListener(function(request, sender, callback) {
+g_messageBus.addMessageListener((request, sender, callback) => {
+    if (request.action !== 'show-roman') return;
 
-    g_devanagari.enabled = request.args['show-latin'];
-
-    if (g_devanagari.enabled) {
-        g_devanagari.translateSelection();
+    if ((g_sanskrit.enabled = request.showRoman)) {
+        g_sanskrit.translateSelection();
     } else {
-        g_devanagari.popup.destroy();
+        g_sanskrit.popup.destroy();
     }
 
     callback();
@@ -52,11 +64,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
 
 document.addEventListener('selectionchange', () => {
 
-    if (g_devanagari.enabled)
-        g_devanagari.translateSelection();
+    if (g_sanskrit.enabled)
+        g_sanskrit.translateSelection();
 
 });
 
 document.addEventListener('scroll', () => {
-    g_devanagari.popup.updatePosition();
+    g_sanskrit.popup.updatePosition();
 });

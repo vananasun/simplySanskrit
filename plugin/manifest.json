@@ -11,19 +11,19 @@
 
 
   "background": {
-    "scripts": [ "build/js/plugin.js" ],
+    "scripts": [ "build/js/plugin.min.js" ],
     "persistent": false
   },
   "content_scripts": [
     {
       "matches": [ "<all_urls>" ],
-      "js": [ "build/js/third-party/jquery-3.5.1.slim.min.js", "build/js/content.js" ]
+      "js": [ "build/js/third-party/jquery-3.5.1.slim.min.js", "build/js/content.min.js" ]
     }
   ],
 
   "commands": {
-    "toggle-show-latin": {
-      "suggested_key": { "default": "Alt+R" },
+    "toggle-show-roman": {
+      "suggested_key": { "default": "Alt+S" },
       "description": "Toggle the Dictionary popup when selecting text."
     }
   }

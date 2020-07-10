@@ -6,7 +6,7 @@ Popup = function() {
     this.shown = false;
 
     this.$popup = $('<div>');
-    this.$popup.prop('id', '__easy-devanagari__');
+    this.$popup.prop('id', '__simply-sanskrit__');
     this.$popup.css({
         // 'display': 'none',
         'display': 'inline-block',
@@ -28,7 +28,7 @@ Popup = function() {
         'color': '#fff',
         'font-size': '18px',
         'font-weight': 'bold',
-        'font-family': '"Palatino Linotype", "Book Antiqua", Palatino, serif',
+        'font-family': '"Paromano Linotype", "Book Antiqua", Paromano, serif',
         'padding': '6px 10px 8px',
         'line-height': '22px',
 
@@ -38,7 +38,7 @@ Popup = function() {
     });
 
     // Phonetics span
-    let $span = $('<span id="__easy-devanagari-phonetics__">');
+    let $span = $('<span id="__simply-sanskrit-phonetics__">');
     $span.css({
         'user-select': 'text',
         '-moz-user-select': 'text',
@@ -49,7 +49,7 @@ Popup = function() {
     $span.appendTo(this.$popup);
 
     // Translation span (dictionary lookup)
-    let $spanTranslation = $('<span id="__easy-devanagari-translation__">');
+    let $spanTranslation = $('<span id="__simply-sanskrit-translation__">');
     $spanTranslation.css({
         'padding-right': '6px'
     });
@@ -57,7 +57,7 @@ Popup = function() {
 
 
     // Create speaker icon
-    let $speaker = $('<img id="__easy-devanagari-speak__" src="'+chrome.runtime.getURL('speaker.png')+'">');
+    let $speaker = $('<img id="__simply-sanskrit-speak__" src="'+chrome.runtime.getURL('speaker.png')+'">');
     $speaker.css({
         'padding': '0 0 0 1px',
         'width': 'auto',
@@ -74,7 +74,7 @@ Popup = function() {
 
 
     // Create clipboard icon
-    let $clipboard = $('<img id="__easy-devanagari-copy__" src="'+chrome.runtime.getURL('clipboard.png')+'">');
+    let $clipboard = $('<img id="__simply-sanskrit-copy__" src="'+chrome.runtime.getURL('clipboard.png')+'">');
     $clipboard.css({
         'padding': '0 0 0 6px',
         'width': 'auto',
@@ -96,11 +96,11 @@ Popup = function() {
     this.$popup.appendTo(document.body);
 
     // pronounce text on click speaker
-    document.getElementById("__easy-devanagari-speak__").addEventListener("click", function() {
+    document.getElementById("__simply-sanskrit-speak__").addEventListener("click", function() {
         this.pronounce();
     }.bind(this));
     // copy selected text on click clipboard
-    document.getElementById("__easy-devanagari-copy__").addEventListener("click", function() {
+    document.getElementById("__simply-sanskrit-copy__").addEventListener("click", function() {
         this.copyTextToClipboard();
     }.bind(this));
 
@@ -124,11 +124,11 @@ Popup.prototype.show = function(text, rect) {
     this.shown = true;
 
     // phonetics
-    let latin = g_devanagari.phonetics.devanagariToLatin(text);
-    $('#__easy-devanagari__>span#__easy-devanagari-phonetics__').html(latin);
+    let roman = g_sanskrit.phonetics.devanagariToroman(text);
+    $('#__simply-sanskrit__>span#__simply-sanskrit-phonetics__').html(roman);
 
     // dictionary lookup
-    g_devanagari.dictionary.displayDefinitions(latin);
+    g_sanskrit.dictionary.displayDefinitions(roman);
 
 
 };
@@ -161,7 +161,7 @@ Popup.prototype.getTop = function(rect) { return (rect.y + 4 + rect.height); }
 Popup.prototype.pronounce = function() {
     if (window.speechSynthesis.speaking) return;
 
-    let text = $('#__easy-devanagari__>span#__easy-devanagari-phonetics__').text();
+    let text = $('#__simply-sanskrit__>span#__simply-sanskrit-phonetics__').text();
     let msg = new SpeechSynthesisUtterance(text);
     msg.lang = 'hi-IN';
     msg.rate = 0.8;
@@ -172,7 +172,7 @@ Popup.prototype.pronounce = function() {
  * Copy selected text to clipboard.
  */
 Popup.prototype.copyTextToClipboard = function() {
-    let text = $('#__easy-devanagari__>span#__easy-devanagari-phonetics__').text();
+    let text = $('#__simply-sanskrit__>span#__simply-sanskrit-phonetics__').text();
     navigator.clipboard.writeText(text).then(function() {}, function(err) {});
 }
 

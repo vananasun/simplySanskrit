@@ -1,11 +1,11 @@
-# easySanskrit ॐ
+# simplySanskrit ॐ
 *A chrome plugin that shows definitions of Sanskrit words, pronounces them, and shows you their Roman phonetics.*
 
 ![Screenshot of the plugin in action](https://github.com/vananasun/easySanskrit/blob/master/screenshots/plugin_in_action.gif?raw=true)
 
 
 ## Usage
-Enable the plugin by pressing Alt+R and select some Sanskrit text.
+Enable the plugin by pressing Alt+S and select some Sanskrit text.
 
 
 ## Installation

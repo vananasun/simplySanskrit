@@ -23,13 +23,15 @@ Dictionary.prototype.isValidPage = function(page) {
  */
 Dictionary.prototype.displayDefinitions = function(word) {
 
-    // trim whitespace
-    word = word.replace(/[\s\t]+/g, '').replace(/[\s\t]+$/g, '');
-
+    // trim whitespace and remove diacritics
+    word = word.replace(/[\s\t]+/g, '')
+               .replace(/[\s\t]+$/g, '')
+               .normalize("NFD")
+               .replace(/[\u0300-\u036f]/g, "");
 
     this.setSpanText('...');
 
-    chrome.runtime.sendMessage(
+    g_messageBus.sendMessage(
         { action: 'lookupSanskrit', 'word': word },
         function(response) {
 
@@ -41,7 +43,8 @@ Dictionary.prototype.displayDefinitions = function(word) {
 
             // Show definitions
             let html = '', definitions = this.extractDefinitions(response);
-            for (let i = 0; i < Math.min(Dictionary.AMOUNT_SHOWN, definitions.length); i++)
+            let num = definitions ? Math.min(Dictionary.AMOUNT_SHOWN, definitions.length) : 0;
+            for (let i = 0; i < num; i++)
                 html += definitions[i] + '<br>';
             this.setSpanText(html);
 
@@ -68,7 +71,7 @@ Dictionary.prototype.extractDefinitions = function(page) {
  * @param {string} html
  */
 Dictionary.prototype.setSpanText = function(html) {
-    $('#__easy-devanagari__>span#__easy-devanagari-translation__').html(
+    $('#__simply-sanskrit__>span#__simply-sanskrit-translation__').html(
         '<br><i>' + html + '</i>'
     );
 }

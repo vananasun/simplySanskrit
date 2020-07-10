@@ -1,36 +1,41 @@
 const gulp = require('gulp');
 const watch = require('gulp-watch');
+const merge = require('merge-stream');
 const concat = require('gulp-concat');
+const rename = require('gulp-rename');
 const browserify = require('browserify');
 const src = require('vinyl-source-stream');
-const buffer = require('vinyl-buffer');
+
 
 
 let paths = {
     js: {
-        src: ["src/js/**/!(plugin)*.js", "src/js/**/!(content)*.js", "src/js/**/content.js"],
-        dest: "plugin/build/js"
+        entries: [ 'src/js/plugin.js', 'src/js/content.js' ],
+        watch: [ 'src/js/**/*.js' ],
+        dest: [ 'plugin/build/js' ],
+        includeDirs: [ './src/js/' ]
     },
 };
 
-
-
 function js() {
-    return browserify('./src/js/content.js', {
-        paths: ['./src/js/']
-      }).bundle()
-        .pipe(src('content-bundle.js'))
-        .pipe(buffer())
-        .pipe(concat('content.js'))
-        .on('error', function (err) {
-            console.log(err.toString());
-            this.emit('end');
-        })
-        .pipe(gulp.dest(paths.js.dest));
+    return merge(paths.js.entries.map(entry => {
+        return browserify(entry, { paths: paths.js.includeDirs })
+            .bundle()
+            .pipe(src(entry))
+            .pipe(rename({
+                dirname: '',
+                extname: '.min.js'
+            }))
+            .on('error', (err) => {
+                console.log(err.toString());
+                this.emit('end');
+            })
+            .pipe(gulp.dest(paths.js.dest))
+    }));
 }
 
 gulp.task('watch', function() {
-    gulp.watch(paths.js.src, js);
+    gulp.watch(paths.js.watch, js);
 });
 
 exports.js = js;

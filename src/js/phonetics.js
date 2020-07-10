@@ -1,6 +1,6 @@
 Phonetics = function() {}
 
-Phonetics.prototype.devanagariToLatin = function(input) {
+Phonetics.prototype.devanagariToroman = function(input) {
     input = input.replace(/्/g, "\u200b");
     input = input.replace(/अ/g, "a");
     input = input.replace(/आ/g, "ā");
