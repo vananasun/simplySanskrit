@@ -1,3 +1,4 @@
+let Util = require('util.js');
 let MessageBus = require('message-bus.js');
 
 noplugin = (typeof SIMPLYSANSKRIT_NOPLUGIN !== 'undefined');
@@ -32,8 +33,12 @@ g_messageBus.addCommandListener(command => { if (noplugin) return;
 g_messageBus.addMessageListener((request, sender, sendResponse) => {
     if (request.action !== "lookupSanskrit") return;
 
-    let requestDomain = noplugin ? 'word/' : 'https://sanskritdictionary.org/';
+    // figure out the url to perform a fetch
+    let requestDomain = noplugin ? (Util.BaseUrl() + 'word/')
+                                 : 'https://sanskritdictionary.org/';
     let url = requestDomain + encodeURIComponent(request.word);
+
+    // fetch the page contents of the dictionary
     fetch(url)
         .then(r => { return r.text() })
         .then(d => {
