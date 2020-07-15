@@ -52,6 +52,8 @@ Dictionary.prototype.displayDefinitions = function(word) {
 
             // show definitions
             let html = '', definitions = this.extractDefinitions(response);
+            resp=response;
+            console.log(definitions, response)
             let num = definitions ? Math.min(Dictionary.AMOUNT_SHOWN, definitions.length) : 0;
             for (let i = 0; i < num; i++)
                 html += definitions[i] + '<br>';
@@ -72,7 +74,7 @@ Dictionary.prototype.displayDefinitions = function(word) {
  * @return {string[]}
  */
 Dictionary.prototype.extractDefinitions = function(page) {
-    return page.match(/(?<=\<\/strong>\&mdash;)(.*?(?=  \&))/g);
+    return page.match(/(?<=\<\/strong>\&mdash;)(.*?(?=[\s]+\&))/g);
 }
 
 /**
