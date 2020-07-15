@@ -1,5 +1,5 @@
 Dictionary = function() {
-
+    this.requestedWord = null;
 }
 Dictionary.AMOUNT_SHOWN = 15;
 
@@ -23,34 +23,44 @@ Dictionary.prototype.isValidPage = function(page) {
  */
 Dictionary.prototype.displayDefinitions = function(word) {
 
+    // do not send a request if we already have sent a request, this prevents
+    // any definitions from showing up and then disappearing as "not found".
+    // if (this.requestedWord) return;
+
     // trim whitespace and remove diacritics
     word = word.replace(/[\s\t]+/g, '')
                .replace(/[\s\t]+$/g, '')
                .normalize("NFD")
                .replace(/[\u0300-\u036f]/g, "");
 
+    // indicate that definitions are being loaded
     this.setSpanText('...');
 
+    // send the request message
     g_messageBus.sendMessage(
         { action: 'lookupSanskrit', 'word': word },
-        function(response) {
+        function(response, definedWord) {
 
-            // Check whether it's the index page or the error page.
+            // only display the definitions for the word we were looking for.
+            if (this.requestedWord !== definedWord) return;
+
+            // check whether it's the index page or the error page.
             if (!this.isValidPage(response)) {
                 this.setSpanText('(No definitions found)');
                 return;
             }
 
-            // Show definitions
+            // show definitions
             let html = '', definitions = this.extractDefinitions(response);
             let num = definitions ? Math.min(Dictionary.AMOUNT_SHOWN, definitions.length) : 0;
             for (let i = 0; i < num; i++)
                 html += definitions[i] + '<br>';
+
             this.setSpanText(html);
 
         }.bind(this)
-    )
-
+    );
+    this.requestedWord = word;
 
 }
 

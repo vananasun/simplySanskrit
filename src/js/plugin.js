@@ -42,7 +42,7 @@ g_messageBus.addMessageListener((request, sender, sendResponse) => {
     fetch(url)
         .then(r => { return r.text() })
         .then(d => {
-            sendResponse(d);
+            sendResponse(d, request.word);
         })
         .catch(error => {/*console.warn(error)*/});
 
