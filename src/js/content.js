@@ -1,6 +1,7 @@
 let MessageBus = require('message-bus.js');
 let Phonetics = require('phonetics.js');
-let Dictionary = require('dictionary.js');
+let SanskritDictionaryOrg = require('dictionary/sanskritdictionary.org.js');
+let SpokenSanskritOrg = require('dictionary/spokensanskrit.org.js');
 let Popup = require('popup.js');
 
 // check if we are running as plugin
@@ -13,7 +14,8 @@ if ('undefined' === typeof noplugin) {
 g_sanskrit = {
     'enabled': noplugin,
     'phonetics': new Phonetics(),
-    'dictionary': new Dictionary(),
+    // 'dictionary': new SanskritDictionaryOrg(),
+    'dictionary': new SpokenSanskritOrg(),
     'popup': new Popup(),
 };
 

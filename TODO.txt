@@ -1,6 +1,15 @@
-S   Cut off whitespace and special characters at 2 sides when looking up definitions
+M   Selectable dictionary, or heuristically choose a dictionary to choose from.
+
+S   Sandhi splitting
 
 C   Changeable voice speed in options page
-C   Logo show when enabled
 C   Optimize by hiding the popup when it's not shown (display: none)
 C   Be able to pronounce the selected phonetics, not only the devanagari selection.
+
+COSMETIC:
+S   Put the pronunciation and copy buttons at the right top so they won't jump all over.
+C   Show an incidator (like the logo) when the plugin is enabled.
+
+FUTURE:
+S   Offline definitions, or host on maximvandijk.nl / plugin website
+C   Firefox support (This won't be impossible, just some effort)

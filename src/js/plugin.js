@@ -33,16 +33,11 @@ g_messageBus.addCommandListener(command => { if (noplugin) return;
 g_messageBus.addMessageListener((request, sender, sendResponse) => {
     if (request.action !== "lookupSanskrit") return;
 
-    // figure out the url to perform a fetch
-    let requestDomain = noplugin ? (Util.BaseUrl() + 'word/')
-                                 : 'https://sanskritdictionary.org/';
-    let url = requestDomain + encodeURIComponent(request.word);
-
     // fetch the page contents of the dictionary
-    fetch(url)
+    fetch(request.url)
         .then(r => { return r.text() })
         .then(d => {
-            sendResponse(d, request.word);
+            sendResponse({ 'body': d, 'word': request.word });
         })
         .catch(error => {/*console.warn(error)*/});
 

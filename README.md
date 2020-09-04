@@ -19,7 +19,7 @@ Step 3. Enable "Developer mode" in the top right corner.
 
 Step 4. Click "Load Unpacked Extension" and navigate to the "plugin" folder in the extension.
 
-Step 5. Enable it by clicking the button in the easySanskrit panel.
+Step 5. Enable it by clicking the button in the simplySanskrit panel.
 
 
 ##
